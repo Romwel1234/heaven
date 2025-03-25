@@ -15,24 +15,46 @@ class Users extends MX_Controller {
 		$this->load->view('home');
 	} 
 
-	public function login_process(){
-		$password = $this->input->post('password');
-		$email_add = $this->input->post('email_add');
+	public function dashboard(){
+		$this->load->view('admin');
+	}
 
+	public function login_process() {
+		$password = $this->input->post('password'); // The password the user entered
+		$email_add = $this->input->post('email_add'); // The email entered by the user
+	
 		$where = [
 			'email_add' => $email_add,
-			'password' => $password
 		];
+	
+		// Fetch the user from the database based on email address
+		$row = $this->model->getRow('accounts', $where);
+		if ($row != null) {
+			// Compare the entered password with the hashed password stored in the database
+			if (password_verify($password, $row->password)) {
+				// Password is correct
+				$this->session->set_flashdata('id', $row->id);
+				$message = base64_encode("Welcome " . $row->firstname . '!');
+				
+				if($row->usertype == 'user'){
+					redirect(base_url('users/home/?m=' . $message));
+				}else{
+					redirect(base_url('users/dashboard/?m=' . $message));
+				}
 
-		$row = $this->model->getRow('accounts',$where);
-		if($row != null){
-			$this->session->set_flasdata('id',$row->id);
-			$message = base64_encode("Welcome ".$row->fullname.'!');
+				
+			} else {
+				// Password is incorrect
+				$message = base64_encode("Email address or password is incorrect!");
+			}
 		} else {
+			// Email not found
 			$message = base64_encode("Email address or password is incorrect!");
 		}
-		redirect(base_url('users/home/?m='.$message));
+		
+		// Redirect to the home page with the message
 	}
+	
 
 	public function registration(){
 		$this->load->view('registration');
@@ -40,48 +62,48 @@ class Users extends MX_Controller {
 
 	public function registration_process() {
 		// Retrieve the posted password and retype password
-$password = $this->input->post('password');
-$retype = $this->input->post('retype');
+	$password = $this->input->post('password');
+	$retype = $this->input->post('retype');
 
-// Get the rest of the data from the form
-$data1 = $this->input->post();
-unset($data1['retype']);  // Remove the retype password field
-$data1['usertype'] = 'user';  // Set default user type
+	// Get the rest of the data from the form
+	$data1 = $this->input->post();
+	unset($data1['retype']);  // Remove the retype password field
+	$data1['usertype'] = 'user';  // Set default user type
 
-// Check if the password and retype password match
-if ($password == $retype) {
-    // Encrypt (hash) the password using password_hash()
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+	// Check if the password and retype password match
+	if ($password == $retype) {
+		// Encrypt (hash) the password using password_hash()
+		$hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // Replace the plain text password with the hashed password
-    $data1['password'] = $hashed_password;
+		// Replace the plain text password with the hashed password
+		$data1['password'] = $hashed_password;
 
-    // Insert data into the database
-    if ($this->model->insertData('accounts', $data1)) {
-        $this->session->set_flashdata('message', 'Data successfully saved!');
-        $this->session->set_flashdata('icon', 'success');
-    } else {
-        $this->session->set_flashdata('message', "There's an error in saving your account.");
-        $this->session->set_flashdata('icon', 'error');
-    }
+		// Insert data into the database
+		if ($this->model->insertData('accounts', $data1)) {
+			$this->session->set_flashdata('message', 'Data successfully saved!');
+			$this->session->set_flashdata('icon', 'success');
+		} else {
+			$this->session->set_flashdata('message', "There's an error in saving your account.");
+			$this->session->set_flashdata('icon', 'error');
+		}
 
-    // Redirect to a success page
-    redirect(base_url('?m='.$message));
-} else {
-    // Store form data in session to retain user input on error
-    $this->session->set_flashdata('fullname', $this->input->post('fullname'));
-    $this->session->set_flashdata('email_add', $this->input->post('email_add'));
-    $this->session->set_flashdata('password', $this->input->post('password'));
-    $this->session->set_flashdata('retype', $this->input->post('retype'));
-    $this->session->set_flashdata('gender', $this->input->post('gender'));
+		// Redirect to a success page
+		redirect(base_url('?m='.$message));
+	} else {
+		// Store form data in session to retain user input on error
+		$this->session->set_flashdata('fullname', $this->input->post('fullname'));
+		$this->session->set_flashdata('email_add', $this->input->post('email_add'));
+		$this->session->set_flashdata('password', $this->input->post('password'));
+		$this->session->set_flashdata('retype', $this->input->post('retype'));
+		$this->session->set_flashdata('gender', $this->input->post('gender'));
 
-    // Show error message if passwords don't match
-    $this->session->set_flashdata('message', "Tanga ka kaajo!");  // This message is probably in a different language
-    $this->session->set_flashdata('icon', 'error');
+		// Show error message if passwords don't match
+		$this->session->set_flashdata('message', "Tanga ka kaajo!");  // This message is probably in a different language
+		$this->session->set_flashdata('icon', 'error');
 
-    // Redirect back to the registration page
-    redirect(base_url('users/registration/'));
-}
+		// Redirect back to the registration page
+		redirect(base_url('users/registration/'));
+	}
 	}
 
 }

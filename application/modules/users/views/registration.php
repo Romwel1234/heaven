@@ -45,7 +45,7 @@
             <div class="input-group-text">
               <span class="fas fa-user"></span>
             </div>
-          </div>
+          </div> 
         </div>
         <label>Lastname</label>
         <div class="input-group mb-3">

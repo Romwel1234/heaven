@@ -6,9 +6,14 @@ class Model extends CI_Model {
 		return $this->db->get()->row();
 	}
 
+	function getAll(){
+		return $this->db->get('accounts')->result();
+	}
+
 	function insertData($table,$data){
 		return $this->db->insert($table,$data);
 	}
+
 
 	function updateData($table,$data,$where){
 		$this->db->where($where);
@@ -18,4 +23,5 @@ class Model extends CI_Model {
 	function deleteData($table,$where){
 		$this->db->delete($table,$where);
 	}
+
 }

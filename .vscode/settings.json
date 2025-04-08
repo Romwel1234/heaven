@@ -1,0 +1,10 @@
+{
+    "intelephense.files.maxSize": 5000000,  // Optional: increase file size limit for large projects
+    "intelephense.environment.includePaths": [
+        "application/controllers",  // Include the controllers folder
+        "application/models",        // Include the models folder
+        "application/views",         // Include the views folder
+        "system",                     // Include the system folder
+        "application/third_party"     // Include any third-party libraries folder
+    ]
+}
